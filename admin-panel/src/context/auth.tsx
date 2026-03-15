@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { api } from '@/lib/api'
 
-interface Admin { id: string; name: string; email: string; role: string }
-interface AuthCtx { admin: Admin | null; isLoading: boolean; login: (email: string, password: string) => Promise<void>; logout: () => void }
+interface Admin { id: string; name: string; email: string; role: string; avatar?: string }
+interface AuthCtx { admin: Admin | null; isLoading: boolean; login: (email: string, password: string) => Promise<void>; logout: () => void; updateAdmin: (updated: Partial<Admin>) => void }
 
 const Ctx = createContext<AuthCtx | null>(null)
 
@@ -35,7 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => { localStorage.removeItem('adminToken'); setAdmin(null) }
 
-  return <Ctx.Provider value={{ admin, isLoading, login, logout }}>{children}</Ctx.Provider>
+  const updateAdmin = (updated: Partial<Admin>) => {
+    setAdmin(prev => prev ? { ...prev, ...updated } : prev)
+  }
+
+  return <Ctx.Provider value={{ admin, isLoading, login, logout, updateAdmin }}>{children}</Ctx.Provider>
 }
 
 export const useAuth = () => {
